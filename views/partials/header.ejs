@@ -1,9 +1,35 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Blog</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BlogVerse — A modern blog for sharing thoughts, stories, and ideas.">
+  <title>BlogVerse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <header><h1><a href="/">My Blog</a></h1></header>
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="navbar-inner">
+      <a href="/" class="navbar-brand">✦ BlogVerse</a>
+      <div class="navbar-links">
+        <a href="/" class="nav-link">Home</a>
+        <% if (locals.user) { %>
+          <a href="/compose" class="nav-link primary">✍ Write</a>
+          <div class="nav-user">
+            <span class="nav-avatar" aria-hidden="true"><%= locals.user.username.charAt(0).toUpperCase() %></span>
+            <span class="nav-username"><%= locals.user.username %></span>
+          </div>
+          <form action="/logout" method="POST" style="display:inline;">
+            <button type="submit" class="nav-link nav-link-logout">Logout</button>
+          </form>
+        <% } else { %>
+          <a href="/login" class="nav-link">Login</a>
+          <a href="/register" class="nav-link primary">Register</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+  <main>

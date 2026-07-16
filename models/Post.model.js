@@ -56,17 +56,19 @@ const Post = {
 
   /**
    * Create and persist a new post.
-   * @param {Object} data - { title, content }
+   * @param {Object} data - { title, content, authorId, authorName }
    * @returns {Object} The newly created post
    */
-  create({ title, content }) {
+  create({ title, content, authorId = null, authorName = 'Anonymous' }) {
     const posts = readPosts();
     const post = {
-      id:        uuidv4(),
+      id:         uuidv4(),
       title,
       content,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      authorId,
+      authorName,
+      createdAt:  new Date().toISOString(),
+      updatedAt:  new Date().toISOString(),
     };
     posts.push(post);
     writePosts(posts);

@@ -1,20 +1,33 @@
 {
   "name": "blog-app",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "app.js",
   "license": "MIT",
+  "description": "A modern blog application built with Express.js",
   "dependencies": {
-    "body-parser": "^1.20.2",
+    "bcryptjs": "^3.0.3",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
-    "uuid": "^9.0.0"
+    "express-rate-limit": "^7.1.4",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "uuid": "^14.0.1"
   },
-  "description": "",
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
-  "keywords": [],
+  "keywords": [
+    "blog",
+    "express",
+    "ejs"
+  ],
   "author": "AM",
   "type": "commonjs"
 }

@@ -4,7 +4,7 @@ const Post = require('../models/Post.model');
 
 // ── GET / ────────────────────────────────────────────────────────
 /**
- * List all posts, sorted by newest first.
+ * List all posts, newest first.
  * Supports optional ?q= search query.
  */
 exports.listPosts = (req, res) => {
@@ -19,7 +19,6 @@ exports.listPosts = (req, res) => {
   }
 
   posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
   res.render('home', { posts, search });
 };
 
@@ -55,7 +54,13 @@ exports.createPost = (req, res) => {
     });
   }
 
-  Post.create({ title, content });
+  // Stamp the post with the logged-in user's identity
+  Post.create({
+    title,
+    content,
+    authorId:   res.locals.user.id,
+    authorName: res.locals.user.username,
+  });
   res.redirect('/');
 };
 
@@ -80,6 +85,15 @@ exports.showEdit = (req, res) => {
       message: "The post you're looking for doesn't exist or has been deleted.",
     });
   }
+
+  // Ownership check: only the author may edit
+  if (post.authorId && post.authorId !== res.locals.user.id) {
+    return res.status(403).render('error', {
+      title:   'Access Denied',
+      message: "You can only edit your own posts.",
+    });
+  }
+
   res.render('edit', { post, error: null });
 };
 
@@ -90,6 +104,14 @@ exports.updatePost = (req, res) => {
     return res.status(404).render('error', {
       title:   'Post Not Found',
       message: "The post you're trying to edit doesn't exist.",
+    });
+  }
+
+  // Ownership check: only the author may update
+  if (post.authorId && post.authorId !== res.locals.user.id) {
+    return res.status(403).render('error', {
+      title:   'Access Denied',
+      message: "You can only edit your own posts.",
     });
   }
 
@@ -115,12 +137,22 @@ exports.updatePost = (req, res) => {
 
 // ── POST /delete/:id ─────────────────────────────────────────────
 exports.deletePost = (req, res) => {
-  const deleted = Post.delete(req.params.id);
-  if (!deleted) {
+  const post = Post.getById(req.params.id);
+  if (!post) {
     return res.status(404).render('error', {
       title:   'Post Not Found',
       message: "The post you're trying to delete doesn't exist.",
     });
   }
+
+  // Ownership check: only the author may delete
+  if (post.authorId && post.authorId !== res.locals.user.id) {
+    return res.status(403).render('error', {
+      title:   'Access Denied',
+      message: "You can only delete your own posts.",
+    });
+  }
+
+  Post.delete(req.params.id);
   res.redirect('/');
 };
