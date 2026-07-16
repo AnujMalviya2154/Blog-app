@@ -61,7 +61,7 @@ exports.createPost = (req, res) => {
     authorId:   res.locals.user.id,
     authorName: res.locals.user.username,
   });
-  res.redirect('/');
+  res.redirect('/?toast=created');
 };
 
 // ── GET /posts/:id ───────────────────────────────────────────────
@@ -132,7 +132,7 @@ exports.updatePost = (req, res) => {
   }
 
   const updated = Post.update(req.params.id, { title, content });
-  res.redirect(`/posts/${updated.id}`);
+  res.redirect(`/posts/${updated.id}?toast=updated`);
 };
 
 // ── POST /delete/:id ─────────────────────────────────────────────
@@ -154,5 +154,6 @@ exports.deletePost = (req, res) => {
   }
 
   Post.delete(req.params.id);
-  res.redirect('/');
+  res.redirect('/?toast=deleted');
 };
+
