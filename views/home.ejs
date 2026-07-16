@@ -1,15 +1,112 @@
-
 <%- include('partials/header') %>
-<a href="/compose">Compose New Post</a>
-<% posts.forEach(post => { %>
-  <div class="post">
-    <h2><%= post.title %></h2>
-    <p><%= post.content.substring(0, 100) %>...</p>
-    <a href="/posts/<%= post.id %>">Read More</a> |
-    <a href="/edit/<%= post.id %>">Edit</a>
-    <form action="/delete/<%= post.id %>" method="POST" style="display:inline;">
-      <button type="submit">Delete</button>
-    </form>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Latest Posts</h1>
+    <p>Thoughts, stories, and ideas</p>
   </div>
-<% }) %>
+
+  <form class="search-bar" action="/" method="GET" role="search">
+    <span class="search-icon" aria-hidden="true">🔍</span>
+    <input type="text" name="q" placeholder="Search posts…"
+           value="<%= typeof search !== 'undefined' ? search : '' %>"
+           aria-label="Search posts">
+  </form>
+
+  <% if (posts.length === 0) { %>
+    <div class="empty-state">
+      <span class="empty-state-icon" aria-hidden="true">📝</span>
+      <% if (typeof search !== 'undefined' && search) { %>
+        <h2>No posts found</h2>
+        <p>Nothing matched "<%= search %>". Try a different search term.</p>
+        <a href="/" class="btn btn-ghost btn-lg">Clear Search</a>
+      <% } else { %>
+        <h2>No posts yet</h2>
+        <p>Your blog is empty. Start writing your first post and share your thoughts with the world!</p>
+        <% if (locals.user) { %>
+          <a href="/compose" class="btn btn-primary btn-lg">✍ Write Your First Post</a>
+        <% } else { %>
+          <a href="/register" class="btn btn-primary btn-lg">Join to Start Writing</a>
+        <% } %>
+      <% } %>
+    </div>
+  <% } else { %>
+    <div class="posts-grid" id="postsGrid">
+      <% posts.forEach(function(post) { %>
+        <article class="post-card" id="post-<%= post.id %>">
+          <div class="post-meta">
+            <span class="post-author">✦ <%= post.authorName || 'Anonymous' %></span>
+            <span class="dot" aria-hidden="true"></span>
+            <span><%= timeAgo(post.createdAt) %></span>
+            <span class="dot" aria-hidden="true"></span>
+            <span><%= readingTime(post.content) %></span>
+          </div>
+          <h2><a href="/posts/<%= post.id %>"><%= post.title %></a></h2>
+          <p class="post-excerpt"><%= excerpt(post.content) %></p>
+          <div class="post-actions">
+            <a href="/posts/<%= post.id %>" class="btn btn-ghost">Read More →</a>
+            <% if (locals.user && locals.user.id === post.authorId) { %>
+              <a href="/edit/<%= post.id %>" class="btn btn-ghost">✏️ Edit</a>
+              <button class="btn btn-danger"
+                      data-id="<%= post.id %>"
+                      data-title="<%= post.title %>"
+                      onclick="confirmDelete(this)">🗑 Delete</button>
+            <% } %>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+  <div class="modal">
+    <span class="modal-icon" aria-hidden="true">⚠️</span>
+    <h3 id="deleteModalTitle">Delete Post?</h3>
+    <p id="deleteModalText">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      <form id="deleteForm" method="POST" style="display:inline;">
+        <button type="submit" class="btn btn-danger">🗑 Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Staggered card reveal animation
+  document.addEventListener('DOMContentLoaded', function () {
+    var cards = document.querySelectorAll('.post-card');
+    cards.forEach(function (card, i) {
+      setTimeout(function () { card.classList.add('visible'); }, 80 + i * 70);
+    });
+  });
+
+  // Delete modal
+  function confirmDelete(btn) {
+    var postId    = btn.getAttribute('data-id');
+    var postTitle = btn.getAttribute('data-title');
+    var modal     = document.getElementById('deleteModal');
+    var form      = document.getElementById('deleteForm');
+    var text      = document.getElementById('deleteModalText');
+    form.action = '/delete/' + postId;
+    text.textContent = 'Are you sure you want to delete \u201C' + postTitle + '\u201D? This cannot be undone.';
+    modal.classList.add('active');
+    document.getElementById('deleteModal').querySelector('.btn-ghost').focus();
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('active');
+  }
+
+  document.getElementById('deleteModal').addEventListener('click', function (e) {
+    if (e.target === this) closeDeleteModal();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeDeleteModal();
+  });
+</script>
+
 <%- include('partials/footer') %>

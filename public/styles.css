@@ -344,6 +344,18 @@ main {
   flex-shrink: 0;
 }
 
+.post-author {
+  color: var(--accent-mid);
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.post-author-badge {
+  color: var(--accent-mid);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
 .post-card h2 {
   font-size: 1.4rem;
   font-weight: 700;
